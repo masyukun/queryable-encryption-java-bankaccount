@@ -2,9 +2,12 @@ package com.mongodb.bankaccount.resources;
 
 import com.mongodb.bankaccount.domain.BankAccount;
 import com.mongodb.bankaccount.domain.BankAccountPort;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.result.InsertOneResult;
+
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +26,11 @@ public class BankAccountRepository implements BankAccountPort {
     private static final Logger logger = LoggerFactory.getLogger(BankAccountRepository.class);
 
     private static final String COLLECTION_NAME = "accounts";
+    private final MongoClient mongoClient;
     private final MongoCollection<BankAccountEntity> collection;
 
-    BankAccountRepository(MongoDatabase mongoDatabase) {
+    BankAccountRepository(MongoClient mongoClient, MongoDatabase mongoDatabase) {
+        this.mongoClient = mongoClient;
         this.collection = mongoDatabase.getCollection(COLLECTION_NAME, BankAccountEntity.class);
     }
 
@@ -92,5 +97,24 @@ public class BankAccountRepository implements BankAccountPort {
             throw new RuntimeException("Error finding bank account", e);
         }
 
+    }
+
+    @Override
+    public Object copyData(String sourceNamespace, String targetNamespace) {
+        String[] sourceParts = sourceNamespace.split("\\.");
+        String[] targetParts = targetNamespace.split("\\.");
+
+        if (sourceParts.length != 2 || targetParts.length != 2) {
+            throw new IllegalArgumentException("Invalid namespace format. Expected format: database.collection");
+        }
+
+        MongoDatabase sourceDatabase = mongoClient.getDatabase(sourceParts[0]);
+        MongoCollection<Document> sourceCollection = sourceDatabase.getCollection(sourceParts[1]);
+
+        MongoDatabase targetDatabase = mongoClient.getDatabase(targetParts[0]);
+        MongoCollection<Document> targetCollection = targetDatabase.getCollection(targetParts[1]);
+
+        List<Document> documents = sourceCollection.find().into(new ArrayList<>());
+        return targetCollection.insertMany(documents);
     }
 }

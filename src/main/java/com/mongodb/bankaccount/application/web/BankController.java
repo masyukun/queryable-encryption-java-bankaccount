@@ -41,4 +41,10 @@ public class BankController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PostMapping("/copy")
+    ResponseEntity<Void> copyData(@RequestParam String sourceCollection, @RequestParam String targetCollection) {
+        bankAccountService.copyData(sourceCollection, targetCollection);
+        return ResponseEntity.ok().build();
+    }
 }

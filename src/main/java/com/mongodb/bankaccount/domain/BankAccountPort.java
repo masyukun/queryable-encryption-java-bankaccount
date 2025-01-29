@@ -7,4 +7,5 @@ public interface BankAccountPort {
     List<BankAccount> find();
     List<BankAccount> findByBalanceGreaterThan(double value);
     BankAccount findByAccountNumber(String accountNumber);
+    Object copyData(String sourceCollection, String targetCollection);
 }

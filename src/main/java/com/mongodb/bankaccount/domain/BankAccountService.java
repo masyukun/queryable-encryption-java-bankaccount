@@ -32,6 +32,10 @@ public class BankAccountService {
         return bankAccountPort.findByAccountNumber(accountNumber);
     }
 
+    public Object copyData(String sourceCollection, String targetCollection) {
+        return bankAccountPort.copyData(sourceCollection, targetCollection);
+    }
+
 }
 
 
