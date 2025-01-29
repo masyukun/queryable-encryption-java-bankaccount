@@ -10,6 +10,11 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @Configuration
 public class EncryptionFieldConfig {
@@ -21,32 +26,50 @@ public class EncryptionFieldConfig {
     protected void createEncryptedCollection(MongoDatabase db, ClientEncryptionSettings clientEncryptionSettings) {
         var clientEncryption = ClientEncryptions.create(clientEncryptionSettings);
         var encryptedCollectionParams = new CreateEncryptedCollectionParams("local")
-                .masterKey(new BsonDocument());
+            .masterKey(new BsonDocument());
 
+        System.out.println("encryptFields()");
+        System.out.println(encryptFields());
         var createCollectionOptions = new CreateCollectionOptions().encryptedFields(encryptFields());
 
         clientEncryption.createEncryptedCollection(db, "accounts", createCollectionOptions, encryptedCollectionParams);
     }
 
-    private BsonDocument encryptFields() {
+    protected static BsonDocument encryptFields() {
         return new BsonDocument().append("fields",
-                new BsonArray(Arrays.asList(
-                        createEncryptedField("accountNumber", "string", equalityQueryType()),
-                        createEncryptedField("cardVerificationCode", "int", equalityQueryType()),
-                        createEncryptedField("accountBalance", "double", rangeQueryType()
-                        ))));
+            new BsonArray(Arrays.asList(
+                createEncryptedField("accountNumber", "string", equalityQueryType(), Optional.empty())
+                ,createEncryptedField("cardVerificationCode", "int", equalityQueryType(), Optional.empty())
+                ,createEncryptedField("accountBalance", "double", rangeQueryType(), Optional.empty())
+                // ,createEncryptedField("phoneNumber", "string", equalityQueryType(), Optional.empty())
+
+                // createEncryptedField("accountNumber", "string", equalityQueryType(), Optional.of("0a7fc6f9-a6f4-4f1a-8846-c40f5fe57736"))
+                // ,createEncryptedField("cardVerificationCode", "int", equalityQueryType(), Optional.of("255caf5b-99db-4788-9b90-199d190a09ef"))
+                // ,createEncryptedField("accountBalance", "double", rangeQueryType(), Optional.of("db881df4-2c77-4f5a-b5dd-72e85b2e2ad0"))
+                // ,createEncryptedField("phoneNumber", "string", equalityQueryType(), Optional.of("db881df4-2c77-4f5a-b8dd-72e85b2e2ad0"))
+                    
+            )));
     }
 
-    private BsonDocument createEncryptedField(String path, String bsonType, BsonDocument query) {
-
-        return new BsonDocument()
+    private static BsonDocument createEncryptedField(String path, String bsonType, BsonDocument query, Optional<String> keyIdUUID) {
+        if (keyIdUUID.isEmpty()) {
+            System.out.println("keyIdUUID is null");
+            return new BsonDocument()
                 .append("keyId", new BsonNull())
                 .append("path", new BsonString(path))
                 .append("bsonType", new BsonString(bsonType))
                 .append("queries", query);
+        } else {
+            System.out.println("keyIdUUID is "+keyIdUUID.get());
+            return new BsonDocument()
+                .append("keyId", new BsonBinary(UUID.fromString(keyIdUUID.get())))
+                .append("path", new BsonString(path))
+                .append("bsonType", new BsonString(bsonType))
+                .append("queries", query);
+    }
     }
 
-    private BsonDocument rangeQueryType() {
+    private static BsonDocument rangeQueryType() {
         return new BsonDocument()
                 .append("queryType", new BsonString("range"))
                 .append("min", new BsonDouble(0))
@@ -54,7 +77,7 @@ public class EncryptionFieldConfig {
                 .append("precision", new BsonInt32(2));
     }
 
-    private BsonDocument equalityQueryType() {
+    private static BsonDocument equalityQueryType() {
         return new BsonDocument().append("queryType", new BsonString("equality"));
     }
 }
