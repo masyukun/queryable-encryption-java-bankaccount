@@ -6,8 +6,9 @@ public record BankAccountEntity(
         String accountHolderName,
         String accountNumber,
         int cardVerificationCode,
-        Double accountBalance) {
+        Double accountBalance,
+        String phoneNumber) {
     public BankAccount toDomain() {
-        return new BankAccount(accountHolderName, accountNumber, cardVerificationCode, accountBalance);
+        return new BankAccount(accountHolderName, accountNumber, cardVerificationCode, accountBalance, phoneNumber);
     }
 }

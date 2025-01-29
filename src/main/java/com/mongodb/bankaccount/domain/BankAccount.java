@@ -7,12 +7,13 @@ public record BankAccount(
     String accountHolderName,
     String accountNumber,
     int cardVerificationCode,
-    Double accountBalance) {
+    Double accountBalance,
+    String phoneNumber) {
     public BankResponse toResponse() {
-        return new BankResponse(accountHolderName, accountNumber, cardVerificationCode, accountBalance);
+        return new BankResponse(accountHolderName, accountNumber, cardVerificationCode, accountBalance, phoneNumber);
     }
 
     public BankAccountEntity toEntity() {
-        return new BankAccountEntity(accountHolderName, accountNumber, cardVerificationCode, accountBalance);
+        return new BankAccountEntity(accountHolderName, accountNumber, cardVerificationCode, accountBalance, phoneNumber);
     }
 }

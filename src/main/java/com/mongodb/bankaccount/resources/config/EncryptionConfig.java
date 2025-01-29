@@ -59,6 +59,7 @@ public class EncryptionConfig {
                 .keyVaultNamespace(keyVaultNamespace)
                 .kmsProviders(kmsProviderCredentials)
                 .extraOptions(createExtraOptions())
+                // .encryptedFieldsMap(Map.of("digitalBank.accounts", EncryptionFieldConfig.encryptFields()))
                 .build();
 
         return MongoClientSettings.builder()

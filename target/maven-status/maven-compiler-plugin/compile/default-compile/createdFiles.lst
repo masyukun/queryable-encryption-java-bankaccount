@@ -1,0 +1,12 @@
+com/mongodb/bankaccount/application/web/BankController.class
+com/mongodb/bankaccount/resources/BankAccountRepository.class
+com/mongodb/bankaccount/resources/config/MongoConfig.class
+com/mongodb/bankaccount/domain/BankAccountPort.class
+com/mongodb/bankaccount/resources/config/EncryptionFieldConfig.class
+com/mongodb/bankaccount/resources/config/EncryptionConfig.class
+com/mongodb/bankaccount/BankAccountApplication.class
+com/mongodb/bankaccount/application/web/BankResponse.class
+com/mongodb/bankaccount/resources/BankAccountEntity.class
+com/mongodb/bankaccount/domain/BankAccountService.class
+com/mongodb/bankaccount/domain/BankAccount.class
+com/mongodb/bankaccount/application/web/BankRequest.class
